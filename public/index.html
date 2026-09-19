@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HAPHAK 2026 — Marche devant ma face</title>
+  <meta name="description" content="Retraite chrétienne HAPHAK 2026. HAPHAK signifie transforme. Thème : Marche devant ma face. Inscrivez-vous en ligne." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <a class="saut-contenu" href="#contenu">Aller au contenu principal</a>
+
+  <header class="entete">
+    <div class="enveloppe entete__interieur">
+      <a class="marque" href="index.html">HAPHAK <span>2026</span></a>
+      <a class="entete__lien" href="registration.html">Je m'inscris</a>
+    </div>
+  </header>
+
+  <main id="contenu">
+    <!-- HÉROS -->
+    <section class="heros">
+      <div class="enveloppe heros__contenu">
+        <h1 class="heros__mot apparait" id="nom-retraite">HAPHAK</h1>
+        <p class="heros__sens apparait apparait--2">« <span id="signification">transforme</span> »</p>
+
+        <div class="chemin" aria-hidden="true"></div>
+
+        <p class="heros__theme apparait apparait--3" id="theme">Marche devant ma face</p>
+
+        <dl class="heros__reperes">
+          <div class="repere"><dt>Dates</dt><dd id="dates">Du 27 au 30 septembre 2026</dd></div>
+          <div class="repere"><dt>Début</dt><dd id="heure">Dimanche 27 septembre à 17h00</dd></div>
+          <div class="repere"><dt>Lieu</dt><dd id="lieu">Q. Kyeshero, Av. Topographe N°1</dd></div>
+        </dl>
+
+        <a class="bouton bouton--principal" href="registration.html">Je m'inscris</a>
+      </div>
+    </section>
+
+    <!-- PRÉSENTATION -->
+    <section class="section section--claire">
+      <div class="enveloppe">
+        <h2 class="section__titre">La retraite</h2>
+        <p class="section__intro" id="description">
+          HAPHAK signifie « transforme ». Quatre jours mis à part pour marcher devant la face de
+          Dieu : écouter, prier, et repartir changé. L'inscription se fait en ligne, en quelques
+          minutes, et vous recevrez un QR Code personnel à présenter à l'entrée.
+        </p>
+      </div>
+    </section>
+
+    <!-- SESSIONS -->
+    <section class="section">
+      <div class="enveloppe">
+        <h2 class="section__titre">Les sessions</h2>
+        <p class="section__intro">Le programme de chaque journée.</p>
+        <ul class="sessions" id="liste-sessions">
+          <li class="session">
+            <h3 class="session__nom">Matin</h3>
+            <p class="session__detail">09h00 – 11h30 — Enseignement et adoration</p>
+          </li>
+          <li class="session">
+            <h3 class="session__nom">Midi</h3>
+            <p class="session__detail">14h00 – 16h00 — Étude biblique approfondie (Centre Bérée)</p>
+          </li>
+          <li class="session">
+            <h3 class="session__nom">Soir</h3>
+            <p class="session__detail">20h30 – 01h00 — Intercession, adoration et ateliers</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- INFORMATIONS PRATIQUES -->
+    <section class="section section--claire">
+      <div class="enveloppe">
+        <h2 class="section__titre">Informations pratiques</h2>
+        <p class="section__intro">Ce qu'il faut savoir avant de venir.</p>
+        <div class="pratique">
+          <div class="pratique__bloc">
+            <h3>Quand</h3>
+            <p id="pratique-dates">Du 27 au 30 septembre 2026. Rassemblement le dimanche 27 à 17h00.</p>
+          </div>
+          <div class="pratique__bloc">
+            <h3>Où</h3>
+            <p id="pratique-lieu">Q. Kyeshero, Av. Topographe N°1 — réf. Entrée Tshengerero.</p>
+          </div>
+          <div class="pratique__bloc">
+            <h3>Assistance</h3>
+            <p><a href="tel:+243816366894">+243 816 366 894</a></p>
+          </div>
+          <div class="pratique__bloc">
+            <h3>À l'arrivée</h3>
+            <p>Présentez le QR Code reçu par e-mail. Il est scanné à l'entrée pour valider votre présence.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="section" id="section-contact" hidden>
+      <div class="enveloppe">
+        <h2 class="section__titre">Contact</h2>
+        <div class="pratique" id="contact-details"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pied">
+    <div class="enveloppe pied__interieur">
+      <div class="pied__bloc">
+        <h3>HAPHAK 2026</h3>
+        <p>« Marche devant ma face »</p>
+      </div>
+      <div class="pied__bloc">
+        <h3>Protection des données</h3>
+        <p><a href="/confidentialite.html">Comment vos informations sont utilisées</a></p>
+      </div>
+      <div class="pied__bloc">
+        <h3>Organisation</h3>
+        <p><a href="/admin/login">Espace administrateur</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

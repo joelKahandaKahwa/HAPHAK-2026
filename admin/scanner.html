@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scanner — HAPHAK 2026</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/registration.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body class="admin">
+  <div id="barre-admin"></div>
+
+  <main class="admin-contenu">
+    <div class="enveloppe" style="max-width:560px">
+      <h1 class="admin-titre">Scanner</h1>
+      <p class="admin-sous-titre">Présentez le QR Code du participant devant la caméra.</p>
+
+      <div class="alerte alerte--erreur" id="alerte" role="alert" hidden></div>
+
+      <!-- Résultat du scan -->
+      <div id="resultat"></div>
+
+      <!-- Caméra -->
+      <div class="scanner__cadre" id="cadre">
+        <video id="video" playsinline muted></video>
+        <div class="scanner__viseur" aria-hidden="true"></div>
+      </div>
+      <canvas id="canvas" hidden></canvas>
+
+      <div style="display:grid;gap:10px;margin-bottom:28px">
+        <button type="button" class="bouton bouton--principal" id="btn-camera">Démarrer la caméra</button>
+      </div>
+
+      <!-- Saisie manuelle -->
+      <form class="parametres" id="form-manuel">
+        <h2>Saisie manuelle</h2>
+        <p class="parametres__note">En cas de problème de caméra, entrez le code du participant.</p>
+        <div class="champ">
+          <label class="champ__label" for="code">Code du QR</label>
+          <input type="text" id="code" name="code" placeholder="HAPHAK-…" autocomplete="off" />
+        </div>
+        <button type="submit" class="bouton bouton--secondaire" style="width:100%">Vérifier</button>
+      </form>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-common.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <script>
+    Admin.rendreChrome('/admin/scanner');
+
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const contexte = canvas.getContext('2d', { willReadFrequently: true });
+    const btnCamera = document.getElementById('btn-camera');
+
+    let flux = null;
+    let boucle = null;
+    let dernierCode = null;
+    let enAttente = false;
+
+    // --- Affichage du résultat ---
+    function afficherResultat(reponse) {
+      const zone = document.getElementById('resultat');
+      const d = reponse.data || {};
+
+      if (reponse.result === 'PRESENT') {
+        zone.innerHTML = `
+          <div class="resultat resultat--valide">
+            <p class="resultat__titre">Inscription valide</p>
+            <div class="resultat__ligne"><span>Nom</span><span>${Admin.echapper(d.lastName)}</span></div>
+            <div class="resultat__ligne"><span>Prénom</span><span>${Admin.echapper(d.firstName)}</span></div>
+            <div class="resultat__ligne"><span>Numéro</span><span>${Admin.echapper(d.registrationNumber)}</span></div>
+            <div class="resultat__ligne"><span>Ville</span><span>${Admin.echapper(d.city)}</span></div>
+            <div class="resultat__ligne"><span>Hébergement</span><span>${d.accommodationRequired ? 'Oui' : 'Non'}</span></div>
+            <p style="margin:16px 0 0;font-weight:600;color:var(--succes)">PRÉSENCE VALIDÉE</p>
+          </div>`;
+      } else if (reponse.result === 'ALREADY_SCANNED') {
+        zone.innerHTML = `
+          <div class="resultat resultat--deja">
+            <p class="resultat__titre">Participant déjà enregistré</p>
+            <p style="margin:0">Présence enregistrée le ${Admin.dateLongue(d.scannedAt)}</p>
+          </div>`;
+      } else {
+        // Aucune information personnelle n'est révélée pour un QR invalide.
+        zone.innerHTML = `
+          <div class="resultat resultat--invalide">
+            <p class="resultat__titre">QR Code invalide</p>
+            <p style="margin:0">Ce code ne correspond à aucune inscription.</p>
+          </div>`;
+      }
+
+      zone.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    async function verifier(token) {
+      if (enAttente) return;
+      enAttente = true;
+      try {
+        const reponse = await Admin.appel(API.post('/admin/scanner', { token }));
+        if (reponse) afficherResultat(reponse);
+      } catch (err) {
+        Admin.alerter(err.message);
+      } finally {
+        // Petite pause pour éviter les scans en rafale du même code
+        setTimeout(() => { enAttente = false; dernierCode = null; }, 2500);
+      }
+    }
+
+    // --- Caméra ---
+    async function demarrerCamera() {
+      try {
+        flux = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' },
+        });
+        video.srcObject = flux;
+        await video.play();
+        btnCamera.textContent = 'Arrêter la caméra';
+        boucle = requestAnimationFrame(analyser);
+      } catch (err) {
+        Admin.alerter("Impossible d'accéder à la caméra. Utilisez la saisie manuelle ci-dessous.");
+      }
+    }
+
+    function arreterCamera() {
+      if (boucle) cancelAnimationFrame(boucle);
+      if (flux) flux.getTracks().forEach((t) => t.stop());
+      flux = null;
+      video.srcObject = null;
+      btnCamera.textContent = 'Démarrer la caméra';
+    }
+
+    function analyser() {
+      if (video.readyState === video.HAVE_ENOUGH_DATA && !enAttente) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        contexte.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const image = contexte.getImageData(0, 0, canvas.width, canvas.height);
+        const code = window.jsQR ? jsQR(image.data, image.width, image.height) : null;
+
+        if (code && code.data && code.data !== dernierCode) {
+          dernierCode = code.data;
+          if (navigator.vibrate) navigator.vibrate(60);
+          verifier(code.data);
+        }
+      }
+      boucle = requestAnimationFrame(analyser);
+    }
+
+    btnCamera.addEventListener('click', () => {
+      if (flux) arreterCamera(); else demarrerCamera();
+    });
+
+    window.addEventListener('pagehide', arreterCamera);
+
+    // --- Saisie manuelle ---
+    document.getElementById('form-manuel').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const champ = document.getElementById('code');
+      const valeur = champ.value.trim();
+      if (!valeur) return;
+      verifier(valeur);
+      champ.value = '';
+    });
+  </script>
+</body>
+</html>

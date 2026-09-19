@@ -1,0 +1,284 @@
+/* ============================================
+   HAPHAK 2026 — Formulaire d'inscription
+   Pensé d'abord pour le pouce sur Android.
+   ============================================ */
+
+.formulaire-page { background: var(--ivoire); min-height: 100vh; }
+
+.formulaire-entete {
+  background: var(--bleu-nuit);
+  color: var(--ivoire);
+  padding: 20px 0 0;
+}
+
+.formulaire-entete__titre {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  text-align: center;
+  margin: 0;
+  letter-spacing: 0.06em;
+}
+
+.formulaire-entete__theme {
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--dore-clair);
+  margin: 2px 0 18px;
+  font-size: 0.95rem;
+}
+
+/* --- Progression : le chemin parcouru --- */
+.progression { padding-bottom: 16px; }
+
+.progression__piste {
+  height: 3px;
+  background: rgba(201, 162, 75, 0.25);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progression__avance {
+  height: 100%;
+  width: 12.5%;
+  background: var(--dore);
+  transition: width 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progression__etiquette {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: rgba(250, 248, 244, 0.75);
+  margin-top: 8px;
+}
+
+/* --- Étapes --- */
+.formulaire {
+  max-width: var(--contenu);
+  margin: 0 auto;
+  padding: 32px 24px 120px;
+}
+
+.etape { display: none; }
+.etape.est-active { display: block; animation: monter 320ms ease both; }
+
+.etape__titre {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  margin-bottom: 4px;
+}
+
+.etape__intro {
+  color: var(--gris);
+  margin: 0 0 28px;
+  font-size: 0.95rem;
+}
+
+/* --- Champs --- */
+.champ { margin-bottom: 22px; }
+
+.champ__label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 7px;
+  color: var(--bleu-nuit);
+}
+
+.champ__requis { color: var(--dore); margin-left: 2px; }
+
+.champ__aide {
+  display: block;
+  font-weight: 400;
+  color: var(--gris-clair);
+  font-size: 0.82rem;
+  margin-top: 2px;
+}
+
+input[type="text"],
+input[type="tel"],
+input[type="email"],
+input[type="number"],
+input[type="date"],
+input[type="password"],
+select,
+textarea {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 16px; /* 16px évite le zoom automatique sur iOS/Android */
+  color: var(--bleu-nuit);
+  background: var(--blanc);
+  border: 1px solid #D5CFC3;
+  border-radius: var(--rayon);
+  padding: 14px 14px;
+  min-height: 50px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+textarea { min-height: 110px; resize: vertical; line-height: 1.55; }
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235C6B7F' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+  padding-right: 42px;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--dore);
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.18);
+  outline: none;
+}
+
+input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"] {
+  border-color: var(--erreur);
+}
+
+.champ__erreur {
+  display: block;
+  color: var(--erreur);
+  font-size: 0.85rem;
+  margin-top: 6px;
+  min-height: 1px;
+}
+
+/* --- Choix (radio / cases) --- */
+.choix { display: grid; gap: 10px; }
+.choix--deux { grid-template-columns: 1fr 1fr; }
+
+.choix__option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  min-height: 52px;
+  background: var(--blanc);
+  border: 1px solid #D5CFC3;
+  border-radius: var(--rayon);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.choix__option:hover { border-color: var(--dore); }
+
+.choix__option input { width: 20px; height: 20px; accent-color: var(--bleu-profond); margin: 0; flex-shrink: 0; }
+
+.choix__option:has(input:checked) {
+  border-color: var(--bleu-profond);
+  background: #F3F6FB;
+}
+
+.choix__option:has(input:focus-visible) {
+  outline: 3px solid var(--dore);
+  outline-offset: 2px;
+}
+
+/* --- Consentement --- */
+.consentement {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 16px;
+  background: var(--blanc);
+  border: 1px solid var(--ivoire-ombre);
+  border-radius: var(--rayon);
+  margin-bottom: 14px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.consentement input { width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--bleu-profond); flex-shrink: 0; }
+
+/* --- Blocs conditionnels --- */
+.conditionnel { display: none; padding-left: 14px; border-left: 2px solid var(--dore-clair); }
+.conditionnel.est-visible { display: block; animation: monter 260ms ease both; }
+
+/* --- Deux colonnes sur grand écran --- */
+.grille { display: grid; gap: 0; }
+
+@media (min-width: 640px) {
+  .grille--deux { grid-template-columns: 1fr 1fr; gap: 0 20px; }
+}
+
+/* --- Récapitulatif --- */
+.recap { background: var(--blanc); border: 1px solid var(--ivoire-ombre); border-radius: var(--rayon); padding: 4px 18px; }
+.recap__groupe + .recap__groupe { border-top: 1px solid var(--ivoire-ombre); }
+.recap__groupe h3 { font-family: var(--sans); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; color: var(--dore); margin: 18px 0 8px; }
+.recap__ligne { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; font-size: 0.92rem; }
+.recap__ligne dt { color: var(--gris); flex-shrink: 0; }
+.recap__ligne dd { margin: 0; text-align: right; font-weight: 500; }
+.recap__groupe:last-child { padding-bottom: 14px; }
+
+/* --- Barre de navigation fixe en bas --- */
+.navigation {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--ivoire);
+  border-top: 1px solid var(--ivoire-ombre);
+  padding: 12px 24px calc(12px + env(safe-area-inset-bottom));
+  display: flex;
+  gap: 12px;
+  z-index: 40;
+}
+.navigation .bouton { flex: 1; padding: 15px 16px; }
+.navigation .bouton--principal { flex: 2; }
+
+/* --- Message d'erreur global --- */
+.alerte {
+  padding: 14px 16px;
+  border-radius: var(--rayon);
+  margin-bottom: 20px;
+  font-size: 0.92rem;
+}
+.alerte--erreur { background: #FBEEEB; color: var(--erreur); border: 1px solid #E8C6BF; }
+.alerte--info { background: #EEF3FB; color: var(--bleu-profond); border: 1px solid #CFDCEF; }
+.alerte[hidden] { display: none; }
+
+/* ============================================
+   PAGE DE CONFIRMATION
+   ============================================ */
+.succes { text-align: center; max-width: 480px; margin: 0 auto; padding: 56px 24px 80px; }
+
+.succes__sceau {
+  width: 72px; height: 72px;
+  margin: 0 auto 24px;
+  border: 1px solid var(--dore);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--dore);
+  font-size: 30px;
+}
+
+.succes__titre { font-size: 2rem; margin-bottom: 8px; }
+.succes__message { color: var(--gris); margin: 0 0 32px; }
+
+.succes__numero {
+  font-family: var(--serif);
+  font-size: 2rem;
+  letter-spacing: 0.08em;
+  color: var(--bleu-nuit);
+  background: var(--blanc);
+  border: 1px solid var(--dore);
+  border-radius: var(--rayon);
+  padding: 16px;
+  margin-bottom: 28px;
+}
+
+.succes__qr { background: var(--blanc); padding: 20px; border: 1px solid var(--ivoire-ombre); border-radius: var(--rayon); display: inline-block; }
+.succes__qr img { width: 240px; height: 240px; }
+
+.succes__consigne { font-size: 0.9rem; color: var(--gris); margin: 16px 0 32px; }
+
+.succes__details { text-align: left; margin-bottom: 32px; }
+
+.succes__actions { display: grid; gap: 10px; }
+
+@media print {
+  .entete, .navigation, .succes__actions, .pied { display: none !important; }
+  body { background: #fff; }
+}

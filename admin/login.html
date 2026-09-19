@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Connexion — Administration HAPHAK</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/registration.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body>
+  <main class="connexion">
+    <div class="connexion__boite">
+      <h1 class="connexion__titre">Administration</h1>
+      <p class="connexion__sous">HAPHAK 2026</p>
+
+      <div class="alerte alerte--erreur" id="alerte" role="alert" hidden></div>
+
+      <form id="form-connexion" novalidate>
+        <div class="champ">
+          <label class="champ__label" for="username">Nom d'utilisateur</label>
+          <input type="text" id="username" name="username" autocomplete="username" required />
+        </div>
+
+        <div class="champ">
+          <label class="champ__label" for="password">Mot de passe</label>
+          <input type="password" id="password" name="password" autocomplete="current-password" required />
+        </div>
+
+        <button type="submit" class="bouton bouton--principal" id="btn-connexion">Se connecter</button>
+      </form>
+
+      <p style="text-align:center;margin-top:24px;font-size:0.85rem">
+        <a href="/">Retour au site</a>
+      </p>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script>
+    const form = document.getElementById('form-connexion');
+    const alerte = document.getElementById('alerte');
+    const bouton = document.getElementById('btn-connexion');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alerte.hidden = true;
+
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!username || !password) {
+        alerte.textContent = "Veuillez saisir votre nom d'utilisateur et votre mot de passe.";
+        alerte.hidden = false;
+        return;
+      }
+
+      bouton.disabled = true;
+      bouton.textContent = 'Connexion…';
+
+      try {
+        await API.post('/admin/login', { username, password });
+        window.location.href = '/admin';
+      } catch (err) {
+        alerte.textContent = err.message;
+        alerte.hidden = false;
+        bouton.disabled = false;
+        bouton.textContent = 'Se connecter';
+      }
+    });
+  </script>
+</body>
+</html>

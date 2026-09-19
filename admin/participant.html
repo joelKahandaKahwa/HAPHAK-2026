@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fiche participant — HAPHAK 2026</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/registration.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body class="admin">
+  <div id="barre-admin"></div>
+
+  <main class="admin-contenu">
+    <div class="enveloppe" style="max-width:760px">
+      <h1 class="admin-titre" id="titre">Fiche participant</h1>
+      <p class="admin-sous-titre" id="sous-titre">Chargement…</p>
+
+      <div class="alerte alerte--erreur" id="alerte" role="alert" hidden></div>
+
+      <div class="actions-fiche">
+        <button type="button" class="bouton bouton--principal" id="btn-modifier">Modifier</button>
+        <button type="button" class="bouton bouton--secondaire" id="btn-imprimer">Imprimer</button>
+        <a class="bouton bouton--secondaire" id="btn-exporter" href="#">Exporter</a>
+        <button type="button" class="bouton bouton--fantome" id="btn-supprimer">Supprimer</button>
+        <a class="bouton bouton--fantome" href="/admin/registrations">Retour</a>
+      </div>
+
+      <!-- Mode lecture -->
+      <div class="fiche" id="fiche"></div>
+
+      <!-- Mode édition -->
+      <form class="parametres" id="form-edition" hidden>
+        <h2>Modifier l'inscription</h2>
+        <p class="parametres__note">Le numéro d'inscription et le QR Code ne sont pas modifiables.</p>
+        <div id="champs-edition"></div>
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button type="submit" class="bouton bouton--principal">Enregistrer</button>
+          <button type="button" class="bouton bouton--fantome" id="btn-annuler">Annuler</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-common.js"></script>
+  <script>
+    Admin.rendreChrome('/admin/registrations');
+
+    const id = new URLSearchParams(window.location.search).get('id');
+    let participant = null;
+
+    const GROUPES = [
+      ['Identité', [
+        ['registrationNumber', "Numéro d'inscription"],
+        ['lastName', 'Nom'], ['middleName', 'Postnom'], ['firstName', 'Prénom'],
+        ['gender', 'Sexe'], ['maritalStatus', 'État civil'], ['birthDate', 'Date de naissance', 'date'],
+      ]],
+      ['Coordonnées', [
+        ['phone', 'Téléphone'], ['whatsapp', 'WhatsApp'], ['email', 'E-mail'],
+        ['address', 'Adresse'], ['city', 'Ville'], ['neighborhood', 'Quartier'],
+        ['commune', 'Commune'], ['province', 'Province'], ['country', 'Pays'],
+      ]],
+      ['Famille', [
+        ['familyStatus', 'Situation familiale'], ['familySize', 'Personnes dans la famille'],
+        ['childrenCount', 'Enfants'], ['emergencyContactName', "Contact d'urgence"],
+        ['emergencyContactPhone', 'Son téléphone'], ['emergencyContactRelationship', 'Lien'],
+      ]],
+      ['Participation', [
+        ['source', 'Connu par'], ['arrivalCity', 'Ville de provenance'],
+        ['transportMethod', 'Transport'], ['fullRetreat', 'Toute la retraite'],
+        ['arrivalDate', 'Arrivée', 'date'], ['departureDate', 'Départ', 'date'],
+        ['organizationMember', 'Membre', 'bool'], ['department', 'Département'],
+      ]],
+      ['Hébergement', [
+        ['accommodationRequired', 'Hébergement', 'bool'], ['nights', 'Nuits'],
+        ['accommodationType', 'Préférence'], ['comingWithOthers', 'Accompagné(e)', 'bool'],
+        ['companionsCount', 'Accompagnants'],
+      ]],
+      ['Compléments', [
+        ['specialNeeds', 'Besoins particuliers'], ['comments', 'Commentaires'],
+        ['observations', 'Observations'],
+      ]],
+      ['Suivi', [
+        ['status', 'Statut'], ['emailStatus', 'E-mail'],
+        ['createdAt', 'Inscrit le', 'datetime'], ['updatedAt', 'Modifié le', 'datetime'],
+      ]],
+    ];
+
+    function formater(valeur, type) {
+      if (type === 'bool') return valeur ? 'Oui' : 'Non';
+      if (type === 'date') return Admin.dateCourte(valeur);
+      if (type === 'datetime') return Admin.dateLongue(valeur);
+      return Admin.lib(valeur);
+    }
+
+    async function charger() {
+      if (!id) { Admin.alerter("Aucun participant indiqué."); return; }
+
+      try {
+        const reponse = await Admin.appel(API.get(`/admin/registrations/${encodeURIComponent(id)}`));
+        if (!reponse) return;
+        participant = reponse.data;
+
+        document.getElementById('titre').textContent = `${participant.firstName} ${participant.lastName}`;
+        document.getElementById('sous-titre').innerHTML = participant.attendance
+          ? `${Admin.echapper(participant.registrationNumber)} — <span class="etiquette etiquette--present">Présent depuis le ${Admin.dateLongue(participant.attendance.scannedAt)}</span>`
+          : `${Admin.echapper(participant.registrationNumber)} — <span class="etiquette etiquette--absent">Pas encore scanné</span>`;
+
+        document.getElementById('fiche').innerHTML = GROUPES.map(([titre, champs]) => `
+          <div class="fiche__groupe">
+            <h2>${titre}</h2>
+            <dl style="margin:0">
+              ${champs.map(([cle, libelle, type]) => `
+                <div class="fiche__ligne">
+                  <dt>${libelle}</dt>
+                  <dd>${Admin.echapper(formater(participant[cle], type))}</dd>
+                </div>`).join('')}
+            </dl>
+          </div>
+        `).join('');
+      } catch (err) {
+        Admin.alerter(err.message);
+      }
+    }
+
+    // --- Édition ---
+    const CHAMPS_EDITABLES = [
+      ['lastName', 'Nom', 'text'], ['middleName', 'Postnom', 'text'], ['firstName', 'Prénom', 'text'],
+      ['gender', 'Sexe', 'select', ['HOMME', 'FEMME']],
+      ['maritalStatus', 'État civil', 'select', ['CELIBATAIRE', 'MARIE']],
+      ['phone', 'Téléphone', 'tel'], ['whatsapp', 'WhatsApp', 'tel'], ['email', 'E-mail', 'email'],
+      ['address', 'Adresse', 'text'], ['city', 'Ville', 'text'], ['neighborhood', 'Quartier', 'text'],
+      ['commune', 'Commune', 'text'], ['province', 'Province', 'text'], ['country', 'Pays', 'text'],
+      ['emergencyContactName', "Contact d'urgence", 'text'],
+      ['emergencyContactPhone', 'Téléphone du contact', 'tel'],
+      ['department', 'Département', 'text'],
+      ['nights', 'Nuits', 'number'],
+      ['accommodationType', 'Préférence hébergement', 'select', ['', 'CHAMBRE', 'DORTOIR', 'PEU_IMPORTE']],
+      ['companionsCount', 'Accompagnants', 'number'],
+      ['specialNeeds', 'Besoins particuliers', 'textarea'],
+      ['comments', 'Commentaires', 'textarea'],
+      ['observations', 'Observations', 'textarea'],
+      ['status', 'Statut', 'select', ['REGISTERED', 'CONFIRMED', 'CANCELLED']],
+    ];
+
+    document.getElementById('btn-modifier').addEventListener('click', () => {
+      const zone = document.getElementById('champs-edition');
+      zone.innerHTML = CHAMPS_EDITABLES.map(([cle, libelle, type, options]) => {
+        const valeur = participant[cle] ?? '';
+        if (type === 'select') {
+          return `<div class="champ">
+            <label class="champ__label" for="e-${cle}">${libelle}</label>
+            <select id="e-${cle}" name="${cle}">
+              ${options.map((o) => `<option value="${o}" ${o === valeur ? 'selected' : ''}>${o ? Admin.lib(o) : '—'}</option>`).join('')}
+            </select>
+          </div>`;
+        }
+        if (type === 'textarea') {
+          return `<div class="champ">
+            <label class="champ__label" for="e-${cle}">${libelle}</label>
+            <textarea id="e-${cle}" name="${cle}">${Admin.echapper(valeur)}</textarea>
+          </div>`;
+        }
+        return `<div class="champ">
+          <label class="champ__label" for="e-${cle}">${libelle}</label>
+          <input type="${type}" id="e-${cle}" name="${cle}" value="${Admin.echapper(valeur)}" />
+        </div>`;
+      }).join('');
+
+      document.getElementById('fiche').hidden = true;
+      document.getElementById('form-edition').hidden = false;
+    });
+
+    document.getElementById('btn-annuler').addEventListener('click', () => {
+      document.getElementById('form-edition').hidden = true;
+      document.getElementById('fiche').hidden = false;
+    });
+
+    document.getElementById('form-edition').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const corps = {};
+      CHAMPS_EDITABLES.forEach(([cle, , type]) => {
+        const champ = document.getElementById(`e-${cle}`);
+        if (!champ) return;
+        let v = champ.value.trim();
+        if (type === 'number') v = v === '' ? null : Number(v);
+        if (v === '') v = null;
+        corps[cle] = v;
+      });
+
+      try {
+        await Admin.appel(API.put(`/admin/registrations/${encodeURIComponent(id)}`, corps));
+        document.getElementById('form-edition').hidden = true;
+        document.getElementById('fiche').hidden = false;
+        await charger();
+      } catch (err) {
+        Admin.alerter(err.message);
+      }
+    });
+
+    // --- Suppression ---
+    document.getElementById('btn-supprimer').addEventListener('click', async () => {
+      const sur = window.confirm(
+        "Êtes-vous sûr de vouloir supprimer cette inscription ?\nCette action est irréversible."
+      );
+      if (!sur) return;
+
+      try {
+        await Admin.appel(API.delete(`/admin/registrations/${encodeURIComponent(id)}`));
+        window.location.href = '/admin/registrations';
+      } catch (err) {
+        Admin.alerter(err.message);
+      }
+    });
+
+    document.getElementById('btn-imprimer').addEventListener('click', () => window.print());
+
+    document.getElementById('btn-exporter').addEventListener('click', (e) => {
+      e.preventDefault();
+      // Export ciblé sur ce seul participant via le filtre de recherche
+      window.location.href = `/api/admin/export/pdf?search=${encodeURIComponent(participant.registrationNumber)}`;
+    });
+
+    charger();
+  </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inscription réussie — HAPHAK 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/registration.css" />
+</head>
+<body>
+  <header class="entete">
+    <div class="enveloppe entete__interieur">
+      <a class="marque" href="/">HAPHAK <span>2026</span></a>
+    </div>
+  </header>
+
+  <main class="succes" id="succes">
+    <div class="alerte alerte--erreur" id="alerte" role="alert" hidden></div>
+
+    <div id="contenu-succes" hidden>
+      <div class="succes__sceau" aria-hidden="true">✦</div>
+      <h1 class="succes__titre">Inscription réussie</h1>
+      <p class="succes__message" id="message">Merci pour votre inscription à HAPHAK 2026.</p>
+
+      <p class="succes__numero" id="numero">—</p>
+
+      <div class="succes__qr">
+        <img id="qr" alt="Votre QR Code personnel" />
+      </div>
+      <p class="succes__consigne">
+        Conservez ce QR Code et présentez-le à l'entrée. Une copie vous a été envoyée par e-mail.
+      </p>
+
+      <div class="succes__details">
+        <div class="recap">
+          <div class="recap__groupe">
+            <h3>Votre inscription</h3>
+            <dl style="margin:0" id="details"></dl>
+          </div>
+        </div>
+      </div>
+
+      <div class="succes__actions">
+        <button type="button" class="bouton bouton--principal" id="btn-imprimer">Imprimer</button>
+        <button type="button" class="bouton bouton--secondaire" id="btn-telecharger">Enregistrer mon QR Code</button>
+        <a class="bouton bouton--fantome" href="/">Retour à l'accueil</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script>
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const numero = params.get('n');
+      const alerte = document.getElementById('alerte');
+
+      if (!numero) {
+        alerte.textContent = "Aucun numéro d'inscription fourni.";
+        alerte.hidden = false;
+        return;
+      }
+
+      try {
+        const { data } = await API.get(`/registrations/confirmation/${encodeURIComponent(numero)}`);
+
+        document.getElementById('numero').textContent = data.registrationNumber;
+        document.getElementById('qr').src = data.qrCodeDataUrl;
+
+        const lignes = [
+          ['Nom', `${data.firstName} ${data.lastName}`],
+          ['Ville', data.city],
+          ['Hébergement', data.accommodationRequired ? 'Demandé' : 'Non demandé'],
+          ['Date d\'inscription', new Date(data.createdAt).toLocaleDateString('fr-FR', {
+            day: 'numeric', month: 'long', year: 'numeric',
+          })],
+        ];
+
+        document.getElementById('details').innerHTML = lignes.map(([k, v]) => `
+          <div class="recap__ligne"><dt>${k}</dt><dd>${escapeHtml(v)}</dd></div>
+        `).join('');
+
+        document.getElementById('contenu-succes').hidden = false;
+
+        document.getElementById('btn-imprimer').addEventListener('click', () => window.print());
+
+        document.getElementById('btn-telecharger').addEventListener('click', () => {
+          const a = document.createElement('a');
+          a.href = data.qrCodeDataUrl;
+          a.download = `haphak-${data.registrationNumber}.png`;
+          a.click();
+        });
+      } catch (err) {
+        alerte.textContent = err.message;
+        alerte.hidden = false;
+      }
+
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, (c) => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+        }[c]));
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inscription — HAPHAK 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/registration.css" />
+</head>
+<body class="formulaire-page">
+  <a class="saut-contenu" href="#formulaire">Aller au formulaire</a>
+
+  <header class="formulaire-entete">
+    <div class="enveloppe">
+      <h1 class="formulaire-entete__titre" id="titre-retraite">HAPHAK 2026</h1>
+      <p class="formulaire-entete__theme" id="theme-retraite">« Marche devant ma face »</p>
+
+      <div class="progression">
+        <div class="progression__piste">
+          <div class="progression__avance" id="barre-progression"
+               role="progressbar" aria-valuemin="1" aria-valuemax="8" aria-valuenow="1"
+               aria-label="Progression du formulaire"></div>
+        </div>
+        <div class="progression__etiquette">
+          <span id="nom-etape">Identité</span>
+          <span><span id="numero-etape">1</span> / 8</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="formulaire">
+    <form class="formulaire" id="form-inscription" novalidate>
+      <div class="alerte alerte--erreur" id="alerte-globale" role="alert" hidden></div>
+
+      <!-- ÉTAPE 1 — IDENTITÉ -->
+      <section class="etape est-active" data-etape="1" aria-labelledby="t-etape-1">
+        <h2 class="etape__titre" id="t-etape-1">Identité</h2>
+        <p class="etape__intro">Commençons par votre nom.</p>
+
+        <div class="champ">
+          <label class="champ__label" for="lastName">Nom <span class="champ__requis" aria-hidden="true">*</span></label>
+          <input type="text" id="lastName" name="lastName" autocomplete="family-name" required maxlength="100" />
+          <span class="champ__erreur" data-erreur="lastName"></span>
+        </div>
+
+        <div class="champ">
+          <label class="champ__label" for="middleName">Postnom</label>
+          <input type="text" id="middleName" name="middleName" maxlength="100" />
+          <span class="champ__erreur" data-erreur="middleName"></span>
+        </div>
+
+        <div class="champ">
+          <label class="champ__label" for="firstName">Prénom <span class="champ__requis" aria-hidden="true">*</span></label>
+          <input type="text" id="firstName" name="firstName" autocomplete="given-name" required maxlength="100" />
+          <span class="champ__erreur" data-erreur="firstName"></span>
+        </div>
+
+        <fieldset class="champ" style="border:none;padding:0;margin-inline:0;">
+          <legend class="champ__label">Sexe <span class="champ__requis" aria-hidden="true">*</span></legend>
+          <div class="choix choix--deux">
+            <label class="choix__option"><input type="radio" name="gender" value="HOMME" required /> Homme</label>
+            <label class="choix__option"><input type="radio" name="gender" value="FEMME" /> Femme</label>
+          </div>
+          <span class="champ__erreur" data-erreur="gender"></span>
+        </fieldset>
+
+        <fieldset class="champ" style="border:none;padding:0;margin-inline:0;">
+          <legend class="champ__label">État civil <span class="champ__requis" aria-hidden="true">*</span></legend>
+          <div class="choix choix--deux">
+            <label class="choix__option"><input type="radio" name="maritalStatus" value="CELIBATAIRE" required /> Célibataire</label>
+            <label class="choix__option"><input type="radio" name="maritalStatus" value="MARIE" /> Marié(e)</label>
+          </div>
+          <span class="champ__erreur" data-erreur="maritalStatus"></span>
+        </fieldset>
+
+        <div class="champ">
+          <label class="champ__label" for="birthDate">Date de naissance
+            <span class="champ__aide">Facultatif</span>
+          </label>
+          <input type="date" id="birthDate" name="birthDate" />
+          <span class="champ__erreur" data-erreur="birthDate"></span>
+        </div>
+      </section>
+
+      <!-- ÉTAPE 2 — COORDONNÉES -->
+      <section class="etape" data-etape="2" aria-labelledby="t-etape-2">
+        <h2 class="etape__titre" id="t-etape-2">Coordonnées</h2>
+        <p class="etape__intro">Pour vous envoyer votre confirmation et votre QR Code.</p>
+
+        <div class="champ">
+          <label class="champ__label" for="phone">Numéro de téléphone <span class="champ__requis" aria-hidden="true">*</span></label>
+          <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel" required maxlength="20" />
+          <span class="champ__erreur" data-erreur="phone"></span>
+        </div>
+
+        <div class="champ">
+          <label class="champ__label" for="whatsapp">WhatsApp <span class="champ__aide">Si différent du numéro ci-dessus</span></label>
+          <input type="tel" id="whatsapp" name="whatsapp" inputmode="tel" maxlength="20" />
+          <span class="champ__erreur" data-erreur="whatsapp"></span>
+        </div>
+
+        <div class="champ">
+          <label class="champ__label" for="email">Adresse e-mail <span class="champ__requis" aria-hidden="true">*</span></label>
+          <input type="email" id="email" name="email" autocomplete="email" inputmode="email" required maxlength="150" />
+          <span class="champ__erreur" data-erreur="email"></span>
+        </div>
+
+        <div class="champ">
+          <label class="champ__label" for="address">Adresse</label>
+          <input type="text" id="address" name="address" autocomplete="street-address" maxlength="200" />
+          <span class="champ__erreur" data-erreur="address"></span>
+        </div>
+
+        <div class="grille grille--deux">
+          <div class="champ">
+            <label class="champ__label" for="city">Ville <span class="champ__requis" aria-hidden="true">*</span></label>
+            <input type="text" id="city" name="city" required maxlength="100" />
+            <span class="champ__erreur" data-erreur="city"></span>
+          </div>
+          <div class="champ">
+            <label class="champ__label" for="neighborhood">Quartier</label>
+            <input type="text" id="neighborhood" name="neighborhood" maxlength="100" />
+            <span class="champ__erreur" data-erreur="neighborhood"></span>
+          </div>
+          <div class="champ">
+            <label class="champ__label" for="commune">Commune</label>
+            <input type="text" id="commune" name="commune" maxlength="100" />
+            <span class="champ__erreur" data-erreur="commune"></span>
+          </div>
+          <div class="champ">
+            <label class="champ__label" for="province">Province</label>
+            <input type="text" id="province" name="province" maxlength="100" />
+            <span class="champ__erreur" data-erreur="province"></span>
+          </div>
+        </div>
+
+        <div class="champ">
+          <label class="champ__label" for="country">Pays <span class="champ__requis" aria-hidden="true">*</span></label>
+          <input type="text" id="country" name="country" autocomplete="country-name" required maxlength="100" />
+          <span class="champ__erreur" data-erreur="country"></span>
+        </div>
+      </section>
+
+      <!-- ÉTAPE 3 — INFORMATIONS FAMILIALES -->
+      <section class="etape" data-etape="3" aria-labelledby="t-etape-3">
+        <h2 class="etape__titre" id="t-etape-3">Informations familiales</h2>
+        <p class="etape__intro">Et qui prévenir en cas d'urgence.</p>
+
+        <div class="champ">
+          <label class="champ__label" for="familyStatus">Situation familiale</label>
+          <input type="text" id="familyStatus" name="familyStatus" maxlength="100" />
+          <span class="champ__erreur" data-erreur="familyStatus"></span>
+        </div>
+
+        <div class="grille grille--deux">
+          <div class="champ">
+            <label class="champ__label" for="familySize">Personnes dans la famille</label>
+            <input type="number" id="familySize" name="familySize" min="0" max="50" inputmode="numeric" />
+            <span class="champ__erreur" data-erreur="familySize"></span>
+          </div>
+          <div class="champ">
+            <label class="champ__label" for="childrenCount">Nombre d'enfants</label>
+            <input type="number" id="childrenCount" name="childrenCount" min="0" max="50" inputmode="numeric" />
+            <span class="champ__erreur" data-erreur="childrenCount"></span>
+          </div>
+        </div>
+
+        <div class="champ">
+          <label class="champ__label" for="emergencyContactName">Personne à contacter en cas d'urgence <span class="champ__requis" aria-hidden="true">*</span></label>
+          <input type="text" id="emergencyContactName" name="emergencyContactName" required maxlength="150" />
+          <span class="champ__erreur" data-erreur="emergencyContactName"></span>
+        </div>
+
+        <div class="champ">
+          <label class="champ__label" for="emergencyContactPhone">Son numéro de téléphone <span class="champ__requis" aria-hidden="true">*</span></label>
+          <input type="tel" id="emergencyContactPhone" name="emergencyContactPhone" inputmode="tel" required maxlength="20" />
+          <span class="champ__erreur" data-erreur="emergencyContactPhone"></span>
+        </div>
+
+        <div class="champ">
+          <label class="champ__label" for="emergencyContactRelationship">Lien avec cette personne <span class="champ__requis" aria-hidden="true">*</span></label>
+          <select id="emergencyContactRelationship" name="emergencyContactRelationship" required>
+            <option value="">Choisissez…</option>
+            <option value="PERE">Père</option>
+            <option value="MERE">Mère</option>
+            <option value="FRERE">Frère</option>
+            <option value="SOEUR">Sœur</option>
+            <option value="EPOUX_EPOUSE">Époux / épouse</option>
+            <option value="TUTEUR">Tuteur</option>
+            <option value="AUTRE">Autre</option>
+          </select>
+          <span class="champ__erreur" data-erreur="emergencyContactRelationship"></span>
+        </div>
+      </section>
+
+      <!-- ÉTAPE 4 — PARTICIPATION -->
+      <section class="etape" data-etape="4" aria-labelledby="t-etape-4">
+        <h2 class="etape__titre" id="t-etape-4">Participation</h2>
+        <p class="etape__intro">Comment vous venez, et pour combien de temps.</p>
+
+        <div class="champ">
+          <label class="champ__label" for="source">Comment avez-vous connu HAPHAK ? <span class="champ__requis" aria-hidden="true">*</span></label>
+          <select id="source" name="source" required>
+            <option value="">Choisissez…</option>
+            <option value="EGLISE">Église</option>
+            <option value="AMI">Ami(e)</option>
+            <option value="WHATSAPP">WhatsApp</option>
+            <option value="FACEBOOK">Facebook</option>
+            <option value="INSTAGRAM">Instagram</option>
+            <option value="ANNONCE">Annonce</option>
+            <option value="AUTRE">Autre</option>
+          </select>
+          <span class="champ__erreur" data-erreur="source"></span>
+        </div>
+
+        <div class="champ">
+          <label class="champ__label" for="arrivalCity">De quelle ville venez-vous ? <span class="champ__requis" aria-hidden="true">*</span></label>
+          <input type="text" id="arrivalCity" name="arrivalCity" required maxlength="100" />
+          <span class="champ__erreur" data-erreur="arrivalCity"></span>
+        </div>
+
+        <div class="champ">
+          <label class="champ__label" for="transportMethod">Comment allez-vous arriver ? <span class="champ__requis" aria-hidden="true">*</span></label>
+          <select id="transportMethod" name="transportMethod" required>
+            <option value="">Choisissez…</option>
+            <option value="PERSONNEL">Transport personnel</option>
+            <option value="COMMUN">Transport en commun</option>
+            <option value="GROUPE">Véhicule de groupe</option>
+            <option value="AUTRE">Autre</option>
+          </select>
+          <span class="champ__erreur" data-erreur="transportMethod"></span>
+        </div>
+
+        <fieldset class="champ" style="border:none;padding:0;margin-inline:0;">
+          <legend class="champ__label">Participerez-vous à toute la retraite ? <span class="champ__requis" aria-hidden="true">*</span></legend>
+          <div class="choix">
+            <label class="choix__option"><input type="radio" name="fullRetreat" value="OUI" required /> Oui</label>
+            <label class="choix__option"><input type="radio" name="fullRetreat" value="NON" /> Non</label>
+            <label class="choix__option"><input type="radio" name="fullRetreat" value="NE_SAIS_PAS" /> Je ne sais pas encore</label>
+          </div>
+          <span class="champ__erreur" data-erreur="fullRetreat"></span>
+        </fieldset>
+
+        <div class="grille grille--deux">
+          <div class="champ">
+            <label class="champ__label" for="arrivalDate">Date prévue d'arrivée</label>
+            <input type="date" id="arrivalDate" name="arrivalDate" />
+            <span class="champ__erreur" data-erreur="arrivalDate"></span>
+          </div>
+          <div class="champ">
+            <label class="champ__label" for="departureDate">Date prévue de départ</label>
+            <input type="date" id="departureDate" name="departureDate" />
+            <span class="champ__erreur" data-erreur="departureDate"></span>
+          </div>
+        </div>
+
+        <fieldset class="champ" style="border:none;padding:0;margin-inline:0;">
+          <legend class="champ__label">Êtes-vous membre de l'organisation ?</legend>
+          <div class="choix choix--deux">
+            <label class="choix__option"><input type="radio" name="organizationMember" value="true" /> Oui</label>
+            <label class="choix__option"><input type="radio" name="organizationMember" value="false" checked /> Non</label>
+          </div>
+        </fieldset>
+
+        <div class="conditionnel champ" id="bloc-departement">
+          <label class="champ__label" for="department">Département / service</label>
+          <input type="text" id="department" name="department" maxlength="100" />
+          <span class="champ__erreur" data-erreur="department"></span>
+        </div>
+      </section>
+
+      <!-- ÉTAPE 5 — HÉBERGEMENT -->
+      <section class="etape" data-etape="5" aria-labelledby="t-etape-5">
+        <h2 class="etape__titre" id="t-etape-5">Hébergement</h2>
+        <p class="etape__intro">Pour préparer votre accueil sur place.</p>
+
+        <fieldset class="champ" style="border:none;padding:0;margin-inline:0;">
+          <legend class="champ__label">Voulez-vous bénéficier d'un hébergement ?</legend>
+          <div class="choix choix--deux">
+            <label class="choix__option"><input type="radio" name="accommodationRequired" value="true" /> Oui</label>
+            <label class="choix__option"><input type="radio" name="accommodationRequired" value="false" checked /> Non</label>
+          </div>
+        </fieldset>
+
+        <div class="conditionnel" id="bloc-hebergement">
+          <div class="champ">
+            <label class="champ__label" for="nights">Nombre de nuits</label>
+            <input type="number" id="nights" name="nights" min="0" max="60" inputmode="numeric" />
+            <span class="champ__erreur" data-erreur="nights"></span>
+          </div>
+          <div class="champ">
+            <label class="champ__label" for="accommodationType">Préférence d'hébergement</label>
+            <select id="accommodationType" name="accommodationType">
+              <option value="">Choisissez…</option>
+              <option value="CHAMBRE">Chambre</option>
+              <option value="DORTOIR">Dortoir</option>
+              <option value="PEU_IMPORTE">Peu importe</option>
+            </select>
+            <span class="champ__erreur" data-erreur="accommodationType"></span>
+          </div>
+        </div>
+
+        <fieldset class="champ" style="border:none;padding:0;margin-inline:0;">
+          <legend class="champ__label">Viendrez-vous seul(e) ?</legend>
+          <div class="choix choix--deux">
+            <label class="choix__option"><input type="radio" name="comingAlone" value="true" checked /> Oui</label>
+            <label class="choix__option"><input type="radio" name="comingAlone" value="false" /> Non</label>
+          </div>
+        </fieldset>
+
+        <div class="conditionnel champ" id="bloc-accompagnants">
+          <label class="champ__label" for="companionsCount">Nombre de personnes qui vous accompagnent</label>
+          <input type="number" id="companionsCount" name="companionsCount" min="0" max="50" inputmode="numeric" />
+          <span class="champ__erreur" data-erreur="companionsCount"></span>
+        </div>
+      </section>
+
+      <!-- ÉTAPE 6 — INFORMATIONS COMPLÉMENTAIRES -->
+      <section class="etape" data-etape="6" aria-labelledby="t-etape-6">
+        <h2 class="etape__titre" id="t-etape-6">Informations complémentaires</h2>
+        <p class="etape__intro">Tout ce que l'organisation devrait savoir.</p>
+
+        <div class="champ">
+          <label class="champ__label" for="specialNeeds">Besoins particuliers</label>
+          <textarea id="specialNeeds" name="specialNeeds" maxlength="1000"></textarea>
+          <span class="champ__erreur" data-erreur="specialNeeds"></span>
+        </div>
+
+        <div class="champ">
+          <label class="champ__label" for="comments">Commentaires</label>
+          <textarea id="comments" name="comments" maxlength="1000"></textarea>
+          <span class="champ__erreur" data-erreur="comments"></span>
+        </div>
+
+        <div class="champ">
+          <label class="champ__label" for="observations">Observations et informations importantes</label>
+          <textarea id="observations" name="observations" maxlength="1000"></textarea>
+          <span class="champ__erreur" data-erreur="observations"></span>
+        </div>
+
+        <label class="consentement">
+          <input type="checkbox" name="consent" id="consent" required />
+          <span>J'accepte que les informations fournies soient utilisées uniquement dans le cadre de l'organisation de cette retraite.</span>
+        </label>
+        <span class="champ__erreur" data-erreur="consent"></span>
+
+        <label class="consentement">
+          <input type="checkbox" name="confirmed" id="confirmed" required />
+          <span>Je confirme que les informations fournies sont exactes.</span>
+        </label>
+        <span class="champ__erreur" data-erreur="confirmed"></span>
+      </section>
+
+      <!-- ÉTAPE 7 — RÉCAPITULATIF -->
+      <section class="etape" data-etape="7" aria-labelledby="t-etape-7">
+        <h2 class="etape__titre" id="t-etape-7">Récapitulatif</h2>
+        <p class="etape__intro">Vérifiez vos informations avant de confirmer.</p>
+        <div class="recap" id="recap"></div>
+      </section>
+
+      <!-- ÉTAPE 8 — ENVOI EN COURS -->
+      <section class="etape" data-etape="8" aria-labelledby="t-etape-8">
+        <h2 class="etape__titre" id="t-etape-8">Confirmation</h2>
+        <p class="etape__intro" id="message-envoi">Enregistrement de votre inscription…</p>
+      </section>
+    </form>
+  </main>
+
+  <nav class="navigation" aria-label="Navigation du formulaire">
+    <button type="button" class="bouton bouton--fantome" id="btn-precedent">Précédent</button>
+    <button type="button" class="bouton bouton--principal" id="btn-suivant">Continuer</button>
+  </nav>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/registration.js"></script>
+</body>
+</html>

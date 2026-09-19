@@ -1,0 +1,363 @@
+/* ============================================
+   HAPHAK 2026 — Feuille de style principale
+   Mobile first. Palette : bleu profond, doré, ivoire.
+   Motif directeur : le chemin (ligne verticale dorée).
+   ============================================ */
+
+/* --- Tokens --- */
+:root {
+  --bleu-nuit: #0B1F3A;
+  --bleu-profond: #142F55;
+  --bleu-clair: #4A6B98;
+  --dore: #C9A24B;
+  --dore-clair: #E3C782;
+  --ivoire: #FAF8F4;
+  --ivoire-ombre: #EFEAE0;
+  --gris: #5C6B7F;
+  --gris-clair: #8A97A8;
+  --blanc: #FFFFFF;
+  --erreur: #A8321F;
+  --succes: #2E6B4F;
+
+  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --pas: 8px;
+  --rayon: 4px;
+  --transition: 240ms cubic-bezier(0.4, 0, 0.2, 1);
+  --contenu: 640px;
+}
+
+/* --- Reset --- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--bleu-nuit);
+  background: var(--ivoire);
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+
+h1, h2, h3 { font-family: var(--serif); font-weight: 500; line-height: 1.15; margin: 0; }
+
+a { color: var(--bleu-profond); }
+
+/* --- Accessibilité --- */
+:focus-visible {
+  outline: 3px solid var(--dore);
+  outline-offset: 3px;
+}
+
+.saut-contenu {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--bleu-nuit);
+  color: var(--ivoire);
+  padding: 12px 20px;
+  z-index: 100;
+}
+.saut-contenu:focus { left: 0; }
+
+.visuellement-cache {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- Conteneur --- */
+.enveloppe {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ============================================
+   EN-TÊTE
+   ============================================ */
+.entete {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(11, 31, 58, 0.96);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(201, 162, 75, 0.25);
+}
+
+.entete__interieur {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 60px;
+}
+
+.marque {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  color: var(--ivoire);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+}
+
+.marque span { color: var(--dore); }
+
+.entete__lien {
+  font-size: 0.875rem;
+  color: var(--dore-clair);
+  text-decoration: none;
+  padding: 10px 14px;
+  border: 1px solid rgba(201, 162, 75, 0.5);
+  border-radius: var(--rayon);
+  transition: background var(--transition), color var(--transition);
+}
+.entete__lien:hover { background: var(--dore); color: var(--bleu-nuit); }
+
+/* ============================================
+   HÉROS — le chemin qui monte vers la lumière
+   ============================================ */
+.heros {
+  position: relative;
+  background: linear-gradient(170deg, var(--bleu-nuit) 0%, var(--bleu-profond) 55%, #1D3F6E 100%);
+  color: var(--ivoire);
+  padding: 72px 0 96px;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Halo de lumière au sommet du chemin */
+.heros::before {
+  content: '';
+  position: absolute;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(201, 162, 75, 0.28) 0%, transparent 68%);
+  pointer-events: none;
+}
+
+.heros__contenu { position: relative; }
+
+.heros__mot {
+  font-family: var(--serif);
+  font-size: clamp(3.2rem, 17vw, 6.5rem);
+  letter-spacing: 0.1em;
+  line-height: 1;
+  margin: 0;
+  color: var(--ivoire);
+}
+
+.heros__sens {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.15rem, 5vw, 1.6rem);
+  color: var(--dore-clair);
+  margin: 12px 0 0;
+}
+
+/* Le chemin : filet doré descendant, séparant le nom du thème */
+.chemin {
+  width: 1px;
+  height: 56px;
+  margin: 28px auto;
+  background: linear-gradient(to bottom, transparent, var(--dore), transparent);
+}
+
+.heros__theme {
+  font-family: var(--serif);
+  font-size: clamp(1.6rem, 7vw, 2.6rem);
+  font-weight: 400;
+  color: var(--blanc);
+  margin: 0 auto;
+  max-width: 14ch;
+}
+
+.heros__reperes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 36px auto 0;
+  max-width: 340px;
+  font-size: 0.95rem;
+  color: rgba(250, 248, 244, 0.85);
+}
+
+.repere {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(201, 162, 75, 0.22);
+}
+.repere:last-child { border-bottom: none; }
+.repere dt { color: var(--dore-clair); }
+.repere dd { margin: 0; text-align: right; }
+
+/* ============================================
+   BOUTONS
+   ============================================ */
+.bouton {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  padding: 16px 32px;
+  min-height: 52px;
+  border: none;
+  border-radius: var(--rayon);
+  cursor: pointer;
+  transition: transform var(--transition), background var(--transition), box-shadow var(--transition);
+}
+
+.bouton--principal {
+  background: var(--dore);
+  color: var(--bleu-nuit);
+  box-shadow: 0 6px 24px rgba(201, 162, 75, 0.3);
+}
+.bouton--principal:hover { background: var(--dore-clair); transform: translateY(-2px); }
+
+.bouton--secondaire {
+  background: transparent;
+  color: var(--bleu-nuit);
+  border: 1px solid var(--bleu-nuit);
+}
+.bouton--secondaire:hover { background: var(--bleu-nuit); color: var(--ivoire); }
+
+.bouton--fantome {
+  background: transparent;
+  color: var(--gris);
+  border: 1px solid var(--ivoire-ombre);
+}
+.bouton--fantome:hover { border-color: var(--gris); color: var(--bleu-nuit); }
+
+.bouton:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.heros .bouton { margin-top: 40px; width: 100%; max-width: 320px; }
+
+/* ============================================
+   SECTIONS
+   ============================================ */
+.section { padding: 64px 0; }
+.section--claire { background: var(--blanc); }
+
+.section__titre {
+  font-size: clamp(1.7rem, 6vw, 2.2rem);
+  margin-bottom: 8px;
+}
+
+.section__intro {
+  color: var(--gris);
+  max-width: 62ch;
+  margin: 0 0 32px;
+}
+
+/* --- Sessions : étapes le long du chemin --- */
+.sessions { list-style: none; margin: 0; padding: 0; position: relative; }
+
+.sessions::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 10px;
+  bottom: 10px;
+  width: 1px;
+  background: var(--dore);
+  opacity: 0.4;
+}
+
+.session {
+  position: relative;
+  padding: 0 0 28px 36px;
+}
+
+.session::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 8px;
+  width: 11px;
+  height: 11px;
+  border: 1px solid var(--dore);
+  border-radius: 50%;
+  background: var(--ivoire);
+}
+
+.session__nom { font-family: var(--serif); font-size: 1.35rem; }
+.session__detail { color: var(--gris); font-size: 0.925rem; margin: 2px 0 0; }
+
+/* --- Informations pratiques --- */
+.pratique { display: grid; gap: 20px; }
+
+.pratique__bloc {
+  padding: 20px 0;
+  border-top: 1px solid var(--ivoire-ombre);
+}
+.pratique__bloc h3 { font-size: 1.15rem; margin-bottom: 4px; }
+.pratique__bloc p { margin: 0; color: var(--gris); }
+
+.a-configurer {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--gris);
+  background: var(--ivoire-ombre);
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+
+/* --- Pied de page --- */
+.pied {
+  background: var(--bleu-nuit);
+  color: rgba(250, 248, 244, 0.7);
+  padding: 44px 0;
+  font-size: 0.875rem;
+}
+.pied a { color: var(--dore-clair); }
+.pied h3 { color: var(--ivoire); font-size: 1.05rem; margin-bottom: 8px; }
+.pied__bloc + .pied__bloc { margin-top: 28px; }
+
+/* --- Apparition à l'arrivée sur la page (une seule fois) --- */
+.apparait {
+  animation: monter 700ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.apparait--2 { animation-delay: 120ms; }
+.apparait--3 { animation-delay: 240ms; }
+
+@keyframes monter {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ============================================
+   TABLETTE / DESKTOP
+   ============================================ */
+@media (min-width: 768px) {
+  .heros { padding: 110px 0 120px; }
+  .heros__reperes { max-width: 420px; }
+  .heros .bouton { width: auto; }
+  .section { padding: 88px 0; }
+  .pratique { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; }
+  .pied__interieur { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  .pied__bloc + .pied__bloc { margin-top: 0; }
+}

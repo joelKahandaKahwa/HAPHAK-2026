@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Paramètres — HAPHAK 2026</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/registration.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body class="admin">
+  <div id="barre-admin"></div>
+
+  <main class="admin-contenu">
+    <div class="enveloppe" style="max-width:700px">
+      <h1 class="admin-titre">Paramètres</h1>
+      <p class="admin-sous-titre">Ces informations alimentent le site public et les e-mails. Aucun code à modifier.</p>
+
+      <div class="alerte" id="alerte" role="alert" hidden></div>
+
+      <form class="parametres" id="form-parametres">
+        <h2>Informations de la retraite</h2>
+        <p class="parametres__note">Laissez « À CONFIGURER » tant qu'une information n'est pas arrêtée.</p>
+
+        <div class="champ">
+          <label class="champ__label" for="name">Nom</label>
+          <input type="text" id="name" name="name" />
+        </div>
+        <div class="champ">
+          <label class="champ__label" for="meaning">Signification</label>
+          <input type="text" id="meaning" name="meaning" />
+        </div>
+        <div class="champ">
+          <label class="champ__label" for="theme">Thème</label>
+          <input type="text" id="theme" name="theme" />
+        </div>
+        <div class="champ">
+          <label class="champ__label" for="datesLabel">Dates</label>
+          <input type="text" id="datesLabel" name="datesLabel" />
+        </div>
+        <div class="champ">
+          <label class="champ__label" for="startTime">Heure de début</label>
+          <input type="text" id="startTime" name="startTime" />
+        </div>
+        <div class="champ">
+          <label class="champ__label" for="location">Lieu</label>
+          <input type="text" id="location" name="location" />
+        </div>
+        <div class="champ">
+          <label class="champ__label" for="description">Description affichée sur l'accueil</label>
+          <textarea id="description" name="description"></textarea>
+        </div>
+
+        <h2 style="margin-top:32px">Contact</h2>
+        <p class="parametres__note">La section Contact du site n'apparaît que si au moins un champ est rempli.</p>
+
+        <div class="champ">
+          <label class="champ__label" for="contactPhone">Téléphone</label>
+          <input type="tel" id="contactPhone" name="contactPhone" />
+        </div>
+        <div class="champ">
+          <label class="champ__label" for="contactEmail">E-mail</label>
+          <input type="email" id="contactEmail" name="contactEmail" />
+        </div>
+        <div class="champ">
+          <label class="champ__label" for="whatsapp">WhatsApp</label>
+          <input type="tel" id="whatsapp" name="whatsapp" />
+        </div>
+
+        <h2 style="margin-top:32px">Période d'inscription</h2>
+        <div class="champ">
+          <label class="champ__label" for="registrationOpensAt">Ouverture des inscriptions</label>
+          <input type="date" id="registrationOpensAt" name="registrationOpensAt" />
+        </div>
+        <div class="champ">
+          <label class="champ__label" for="registrationClosesAt">Fermeture des inscriptions</label>
+          <input type="date" id="registrationClosesAt" name="registrationClosesAt" />
+        </div>
+
+        <button type="submit" class="bouton bouton--principal" style="width:100%;margin-top:12px">
+          Enregistrer les paramètres
+        </button>
+      </form>
+
+      <form class="parametres" id="form-sessions">
+        <h2>Sessions du programme</h2>
+        <p class="parametres__note">Laissez l'horaire vide tant qu'il n'est pas fixé.</p>
+        <div id="zone-sessions"></div>
+        <button type="submit" class="bouton bouton--principal" style="width:100%;margin-top:12px">
+          Enregistrer les sessions
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-common.js"></script>
+  <script>
+    Admin.rendreChrome('/admin/settings');
+
+    const CHAMPS = [
+      'name', 'meaning', 'theme', 'datesLabel', 'startTime', 'location',
+      'description', 'contactPhone', 'contactEmail', 'whatsapp',
+    ];
+
+    let sessions = [];
+
+    async function charger() {
+      try {
+        const reponse = await Admin.appel(API.get('/admin/settings'));
+        if (!reponse) return;
+        const { settings, sessions: liste } = reponse.data;
+
+        CHAMPS.forEach((cle) => {
+          const champ = document.getElementById(cle);
+          if (champ) champ.value = settings[cle] || '';
+        });
+
+        ['registrationOpensAt', 'registrationClosesAt'].forEach((cle) => {
+          const champ = document.getElementById(cle);
+          if (champ && settings[cle]) champ.value = settings[cle].slice(0, 10);
+        });
+
+        sessions = liste;
+        rendreSessions();
+      } catch (err) {
+        Admin.alerter(err.message);
+      }
+    }
+
+    function rendreSessions() {
+      const zone = document.getElementById('zone-sessions');
+      zone.innerHTML = sessions.map((s, i) => `
+        <div style="border-top:1px solid var(--ivoire-ombre);padding-top:18px;margin-top:18px">
+          <div class="champ">
+            <label class="champ__label" for="s-nom-${i}">Nom de la session</label>
+            <input type="text" id="s-nom-${i}" value="${Admin.echapper(s.name)}" />
+          </div>
+          <div class="champ">
+            <label class="champ__label" for="s-heure-${i}">Heure</label>
+            <input type="text" id="s-heure-${i}" value="${Admin.echapper(s.time || '')}" placeholder="Non fixée" />
+          </div>
+          <div class="champ">
+            <label class="champ__label" for="s-date-${i}">Date</label>
+            <input type="date" id="s-date-${i}" value="${s.date ? s.date.slice(0, 10) : ''}" />
+          </div>
+          <div class="champ">
+            <label class="champ__label" for="s-desc-${i}">Description</label>
+            <input type="text" id="s-desc-${i}" value="${Admin.echapper(s.description || '')}" />
+          </div>
+          <label class="consentement">
+            <input type="checkbox" id="s-actif-${i}" ${s.active ? 'checked' : ''} />
+            <span>Afficher cette session sur le site</span>
+          </label>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('form-parametres').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const corps = {};
+      CHAMPS.forEach((cle) => {
+        const champ = document.getElementById(cle);
+        if (champ) corps[cle] = champ.value.trim() || null;
+      });
+      ['registrationOpensAt', 'registrationClosesAt'].forEach((cle) => {
+        const v = document.getElementById(cle).value;
+        corps[cle] = v ? new Date(v).toISOString() : null;
+      });
+
+      try {
+        await Admin.appel(API.put('/admin/settings', corps));
+        Admin.alerter('Paramètres enregistrés.', 'info');
+      } catch (err) {
+        Admin.alerter(err.message);
+      }
+    });
+
+    document.getElementById('form-sessions').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const corps = sessions.map((s, i) => ({
+        id: s.id,
+        name: document.getElementById(`s-nom-${i}`).value.trim(),
+        time: document.getElementById(`s-heure-${i}`).value.trim() || null,
+        date: document.getElementById(`s-date-${i}`).value || null,
+        description: document.getElementById(`s-desc-${i}`).value.trim() || null,
+        active: document.getElementById(`s-actif-${i}`).checked,
+        order: i,
+      }));
+
+      try {
+        await Admin.appel(API.put('/admin/settings/sessions', { sessions: corps }));
+        Admin.alerter('Sessions enregistrées.', 'info');
+      } catch (err) {
+        Admin.alerter(err.message);
+      }
+    });
+
+    charger();
+  </script>
+</body>
+</html>

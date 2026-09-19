@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Participants — HAPHAK 2026</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/registration.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body class="admin">
+  <div id="barre-admin"></div>
+
+  <main class="admin-contenu">
+    <div class="enveloppe">
+      <h1 class="admin-titre">Participants</h1>
+      <p class="admin-sous-titre" id="compteur">Chargement…</p>
+
+      <div class="alerte alerte--erreur" id="alerte" role="alert" hidden></div>
+
+      <!-- Filtres -->
+      <form class="filtres" id="filtres" onsubmit="return false">
+        <div>
+          <label class="champ__label" for="f-search">Rechercher</label>
+          <input type="search" id="f-search" placeholder="Nom, numéro, téléphone, e-mail" />
+        </div>
+        <div>
+          <label class="champ__label" for="f-city">Ville</label>
+          <input type="text" id="f-city" placeholder="Toutes" />
+        </div>
+        <div>
+          <label class="champ__label" for="f-gender">Sexe</label>
+          <select id="f-gender">
+            <option value="">Tous</option>
+            <option value="HOMME">Homme</option>
+            <option value="FEMME">Femme</option>
+          </select>
+        </div>
+        <div>
+          <label class="champ__label" for="f-member">Membre</label>
+          <select id="f-member">
+            <option value="">Tous</option>
+            <option value="true">Membres</option>
+            <option value="false">Non-membres</option>
+          </select>
+        </div>
+        <div>
+          <label class="champ__label" for="f-accommodation">Hébergement</label>
+          <select id="f-accommodation">
+            <option value="">Tous</option>
+            <option value="true">Demandé</option>
+            <option value="false">Non demandé</option>
+          </select>
+        </div>
+        <div>
+          <label class="champ__label" for="f-present">Présence</label>
+          <select id="f-present">
+            <option value="">Tous</option>
+            <option value="true">Présents</option>
+            <option value="false">Absents</option>
+          </select>
+        </div>
+        <div>
+          <label class="champ__label" for="f-from">Inscrit depuis</label>
+          <input type="date" id="f-from" />
+        </div>
+        <div>
+          <label class="champ__label" for="f-to">Jusqu'au</label>
+          <input type="date" id="f-to" />
+        </div>
+        <div>
+          <label class="champ__label" for="f-sort">Trier par</label>
+          <select id="f-sort">
+            <option value="createdAt:desc">Plus récentes</option>
+            <option value="createdAt:asc">Plus anciennes</option>
+            <option value="lastName:asc">Nom (A→Z)</option>
+            <option value="lastName:desc">Nom (Z→A)</option>
+            <option value="city:asc">Ville (A→Z)</option>
+          </select>
+        </div>
+
+        <div class="filtres__actions">
+          <button type="button" class="bouton bouton--principal" id="btn-appliquer">Appliquer</button>
+          <button type="button" class="bouton bouton--fantome" id="btn-reinitialiser">Réinitialiser</button>
+          <button type="button" class="bouton bouton--secondaire" data-export="csv">Exporter CSV</button>
+          <button type="button" class="bouton bouton--secondaire" data-export="excel">Exporter Excel</button>
+          <button type="button" class="bouton bouton--secondaire" data-export="pdf">Exporter PDF</button>
+          <button type="button" class="bouton bouton--fantome" id="btn-imprimer">Imprimer</button>
+        </div>
+      </form>
+
+      <!-- Tableau (écrans larges) -->
+      <div class="tableau-enveloppe">
+        <table class="liste">
+          <thead>
+            <tr>
+              <th>N°</th><th>Nom complet</th><th>Téléphone</th><th>Ville</th>
+              <th>Sexe</th><th>Statut</th><th>Hébergement</th><th>Présence</th>
+              <th>Inscrit le</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="corps-tableau"></tbody>
+        </table>
+      </div>
+
+      <!-- Cartes (smartphone) -->
+      <div class="cartes" id="cartes"></div>
+
+      <div id="zone-vide"></div>
+
+      <div class="pagination" id="pagination" hidden>
+        <button type="button" class="bouton bouton--fantome" id="btn-prec">Précédent</button>
+        <span id="info-page"></span>
+        <button type="button" class="bouton bouton--fantome" id="btn-suiv">Suivant</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-common.js"></script>
+  <script>
+    Admin.rendreChrome('/admin/registrations');
+
+    let page = 1;
+    let totalPages = 1;
+
+    function construireParametres() {
+      const [sortBy, sortDir] = document.getElementById('f-sort').value.split(':');
+      const params = new URLSearchParams();
+      const ajouter = (cle, valeur) => { if (valeur) params.set(cle, valeur); };
+
+      ajouter('search', document.getElementById('f-search').value.trim());
+      ajouter('city', document.getElementById('f-city').value.trim());
+      ajouter('gender', document.getElementById('f-gender').value);
+      ajouter('memberOnly', document.getElementById('f-member').value);
+      ajouter('accommodation', document.getElementById('f-accommodation').value);
+      ajouter('present', document.getElementById('f-present').value);
+      ajouter('dateFrom', document.getElementById('f-from').value);
+      ajouter('dateTo', document.getElementById('f-to').value);
+      params.set('sortBy', sortBy);
+      params.set('sortDir', sortDir);
+      return params;
+    }
+
+    async function charger() {
+      const params = construireParametres();
+      params.set('page', page);
+      params.set('pageSize', 20);
+
+      try {
+        const reponse = await Admin.appel(API.get(`/admin/registrations?${params.toString()}`));
+        if (!reponse) return;
+
+        const { data, pagination } = reponse;
+        totalPages = pagination.totalPages || 1;
+
+        document.getElementById('compteur').textContent =
+          `${pagination.total} inscription${pagination.total > 1 ? 's' : ''} correspondant aux filtres.`;
+
+        const corps = document.getElementById('corps-tableau');
+        const cartes = document.getElementById('cartes');
+        const vide = document.getElementById('zone-vide');
+
+        if (!data.length) {
+          corps.innerHTML = '';
+          cartes.innerHTML = '';
+          vide.innerHTML = `
+            <div class="vide">
+              <h2>Aucun participant</h2>
+              <p>Aucune inscription ne correspond à ces filtres. Modifiez-les ou réinitialisez la recherche.</p>
+            </div>`;
+          document.getElementById('pagination').hidden = true;
+          return;
+        }
+
+        vide.innerHTML = '';
+
+        const presence = (r) => r.attendance
+          ? '<span class="etiquette etiquette--present">Présent</span>'
+          : '<span class="etiquette etiquette--absent">Absent</span>';
+
+        const hebergement = (r) => r.accommodationRequired
+          ? '<span class="etiquette etiquette--oui">Oui</span>'
+          : '<span class="etiquette etiquette--non">Non</span>';
+
+        corps.innerHTML = data.map((r) => `
+          <tr>
+            <td>${Admin.echapper(r.registrationNumber)}</td>
+            <td>${Admin.echapper(r.firstName)} ${Admin.echapper(r.lastName)}</td>
+            <td>${Admin.echapper(r.phone)}</td>
+            <td>${Admin.echapper(r.city)}</td>
+            <td>${Admin.lib(r.gender)}</td>
+            <td>${Admin.lib(r.status)}</td>
+            <td>${hebergement(r)}</td>
+            <td>${presence(r)}</td>
+            <td>${Admin.dateCourte(r.createdAt)}</td>
+            <td><a href="/admin/participant?id=${encodeURIComponent(r.id)}">Ouvrir</a></td>
+          </tr>
+        `).join('');
+
+        cartes.innerHTML = data.map((r) => `
+          <article class="carte">
+            <div class="carte__entete">
+              <span class="carte__nom">${Admin.echapper(r.firstName)} ${Admin.echapper(r.lastName)}</span>
+              <span class="carte__numero">${Admin.echapper(r.registrationNumber)}</span>
+            </div>
+            <div class="carte__ligne"><span>Téléphone</span><span>${Admin.echapper(r.phone)}</span></div>
+            <div class="carte__ligne"><span>Ville</span><span>${Admin.echapper(r.city)}</span></div>
+            <div class="carte__ligne"><span>Sexe</span><span>${Admin.lib(r.gender)}</span></div>
+            <div class="carte__ligne"><span>Hébergement</span><span>${hebergement(r)}</span></div>
+            <div class="carte__ligne"><span>Présence</span><span>${presence(r)}</span></div>
+            <div class="carte__ligne"><span>Inscrit le</span><span>${Admin.dateCourte(r.createdAt)}</span></div>
+            <div class="carte__actions">
+              <a class="bouton bouton--secondaire" href="/admin/participant?id=${encodeURIComponent(r.id)}">Voir la fiche</a>
+            </div>
+          </article>
+        `).join('');
+
+        const zonePagination = document.getElementById('pagination');
+        zonePagination.hidden = totalPages <= 1;
+        document.getElementById('info-page').textContent = `Page ${pagination.page} sur ${totalPages}`;
+        document.getElementById('btn-prec').disabled = pagination.page <= 1;
+        document.getElementById('btn-suiv').disabled = pagination.page >= totalPages;
+      } catch (err) {
+        Admin.alerter(err.message);
+      }
+    }
+
+    document.getElementById('btn-appliquer').addEventListener('click', () => { page = 1; charger(); });
+    document.getElementById('f-search').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { page = 1; charger(); }
+    });
+
+    document.getElementById('btn-reinitialiser').addEventListener('click', () => {
+      document.getElementById('filtres').reset();
+      page = 1;
+      charger();
+    });
+
+    document.getElementById('btn-prec').addEventListener('click', () => { if (page > 1) { page--; charger(); } });
+    document.getElementById('btn-suiv').addEventListener('click', () => { if (page < totalPages) { page++; charger(); } });
+
+    document.getElementById('btn-imprimer').addEventListener('click', () => window.print());
+
+    // Les exports reprennent exactement les filtres appliqués à l'écran.
+    document.querySelectorAll('[data-export]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const format = btn.dataset.export;
+        window.location.href = `/api/admin/export/${format}?${construireParametres().toString()}`;
+      });
+    });
+
+    charger();
+  </script>
+</body>
+</html>

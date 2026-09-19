@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tableau de bord — HAPHAK 2026</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/registration.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body class="admin">
+  <div id="barre-admin"></div>
+
+  <main class="admin-contenu">
+    <div class="enveloppe">
+      <h1 class="admin-titre">Tableau de bord</h1>
+      <p class="admin-sous-titre">Vue d'ensemble des inscriptions.</p>
+
+      <div class="alerte alerte--erreur" id="alerte" role="alert" hidden></div>
+
+      <div class="stats" id="stats"></div>
+
+      <div class="stats" id="stats-secondaires"></div>
+
+      <div class="graphique">
+        <h2>Participants par ville</h2>
+        <div id="graphique-villes"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-common.js"></script>
+  <script>
+    Admin.rendreChrome('/admin');
+
+    (async () => {
+      try {
+        const reponse = await Admin.appel(API.get('/admin/dashboard'));
+        if (!reponse) return;
+        const d = reponse.data;
+
+        const principales = [
+          ['Total inscrits', d.totalRegistered, true],
+          ['Hommes', d.men],
+          ['Femmes', d.women],
+          ['Hébergement', d.accommodationRequests],
+          ['Membres', d.members],
+          ['Non-membres', d.nonMembers],
+          ['Présents', d.present, true],
+          ['Absents', d.absent],
+        ];
+
+        document.getElementById('stats').innerHTML = principales.map(([libelle, valeur, accent]) => `
+          <div class="stat ${accent ? 'stat--accent' : ''}">
+            <div class="stat__valeur">${valeur}</div>
+            <div class="stat__libelle">${libelle}</div>
+          </div>
+        `).join('');
+
+        const secondaires = [
+          ["Inscriptions aujourd'hui", d.registrationsToday],
+          ['Inscriptions cette semaine', d.registrationsThisWeek],
+        ];
+
+        document.getElementById('stats-secondaires').innerHTML = secondaires.map(([libelle, valeur]) => `
+          <div class="stat">
+            <div class="stat__valeur">${valeur}</div>
+            <div class="stat__libelle">${libelle}</div>
+          </div>
+        `).join('');
+
+        // Graphique simple en barres, sans dépendance externe
+        const villes = d.byCity || [];
+        const zone = document.getElementById('graphique-villes');
+
+        if (!villes.length) {
+          zone.innerHTML = '<p style="color:var(--gris);margin:0">Aucune inscription pour le moment.</p>';
+        } else {
+          const max = Math.max(...villes.map((v) => v.count));
+          zone.innerHTML = villes.map((v) => `
+            <div class="barre-ligne">
+              <span class="barre-ligne__nom" title="${Admin.echapper(v.city)}">${Admin.echapper(v.city)}</span>
+              <span class="barre-ligne__piste">
+                <span class="barre-ligne__valeur" style="display:block;width:${(v.count / max) * 100}%"></span>
+              </span>
+              <span class="barre-ligne__nombre">${v.count}</span>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        Admin.alerter(err.message);
+      }
+    })();
+  </script>
+</body>
+</html>

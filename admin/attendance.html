@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Présences — HAPHAK 2026</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/registration.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body class="admin">
+  <div id="barre-admin"></div>
+
+  <main class="admin-contenu">
+    <div class="enveloppe">
+      <h1 class="admin-titre">Présences</h1>
+      <p class="admin-sous-titre" id="compteur">Chargement…</p>
+
+      <div class="alerte alerte--erreur" id="alerte" role="alert" hidden></div>
+
+      <div class="tableau-enveloppe">
+        <table class="liste">
+          <thead>
+            <tr><th>Participant</th><th>N°</th><th>Ville</th><th>Scanné le</th><th>Par</th></tr>
+          </thead>
+          <tbody id="corps"></tbody>
+        </table>
+      </div>
+
+      <div class="cartes" id="cartes"></div>
+      <div id="zone-vide"></div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/admin-common.js"></script>
+  <script>
+    Admin.rendreChrome('/admin/attendance');
+
+    (async () => {
+      try {
+        const reponse = await Admin.appel(API.get('/admin/attendance'));
+        if (!reponse) return;
+        const lignes = reponse.data;
+
+        document.getElementById('compteur').textContent =
+          `${lignes.length} passage${lignes.length > 1 ? 's' : ''} enregistré${lignes.length > 1 ? 's' : ''}.`;
+
+        if (!lignes.length) {
+          document.getElementById('zone-vide').innerHTML = `
+            <div class="vide">
+              <h2>Aucune présence</h2>
+              <p>Les présences apparaîtront ici dès le premier QR Code scanné à l'entrée.</p>
+            </div>`;
+          return;
+        }
+
+        document.getElementById('corps').innerHTML = lignes.map((a) => `
+          <tr>
+            <td>${Admin.echapper(a.registration.firstName)} ${Admin.echapper(a.registration.lastName)}</td>
+            <td>${Admin.echapper(a.registration.registrationNumber)}</td>
+            <td>${Admin.echapper(a.registration.city)}</td>
+            <td>${Admin.dateLongue(a.scannedAt)}</td>
+            <td>${Admin.echapper(a.scannedBy ? a.scannedBy.username : '—')}</td>
+          </tr>
+        `).join('');
+
+        document.getElementById('cartes').innerHTML = lignes.map((a) => `
+          <article class="carte">
+            <div class="carte__entete">
+              <span class="carte__nom">${Admin.echapper(a.registration.firstName)} ${Admin.echapper(a.registration.lastName)}</span>
+              <span class="carte__numero">${Admin.echapper(a.registration.registrationNumber)}</span>
+            </div>
+            <div class="carte__ligne"><span>Ville</span><span>${Admin.echapper(a.registration.city)}</span></div>
+            <div class="carte__ligne"><span>Scanné le</span><span>${Admin.dateLongue(a.scannedAt)}</span></div>
+            <div class="carte__ligne"><span>Par</span><span>${Admin.echapper(a.scannedBy ? a.scannedBy.username : '—')}</span></div>
+          </article>
+        `).join('');
+      } catch (err) {
+        Admin.alerter(err.message);
+      }
+    })();
+  </script>
+</body>
+</html>

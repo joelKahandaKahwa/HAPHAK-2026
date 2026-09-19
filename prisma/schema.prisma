@@ -1,0 +1,169 @@
+// ============================================
+// HAPHAK 2026 — Schéma de base de données
+// PostgreSQL (hébergé sur Neon)
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// --------------------------------------------
+// Administrateurs
+// --------------------------------------------
+model Admin {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  fullName     String?  @map("full_name")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  attendanceScans Attendance[] @relation("ScannedBy")
+
+  @@map("admins")
+}
+
+// --------------------------------------------
+// Inscriptions
+// --------------------------------------------
+
+model Registration {
+  id                 String   @id @default(uuid())
+  registrationNumber String   @unique @map("registration_number")
+
+  // Étape 1 — Identité
+  lastName      String    @map("last_name")
+  middleName    String?   @map("middle_name")
+  firstName     String    @map("first_name")
+  gender        String
+  maritalStatus String    @map("marital_status")
+  birthDate     DateTime? @map("birth_date")
+
+  // Étape 2 — Coordonnées
+  phone        String
+  whatsapp     String?
+  email        String
+  address      String?
+  city         String
+  neighborhood String?
+  commune      String?
+  province     String?
+  country      String
+
+  // Étape 3 — Informations familiales
+  familyStatus                 String?       @map("family_status")
+  familySize                   Int?          @map("family_size")
+  childrenCount                Int?          @map("children_count")
+  emergencyContactName         String   @map("emergency_contact_name")
+  emergencyContactPhone        String   @map("emergency_contact_phone")
+  emergencyContactRelationship String   @map("emergency_contact_relationship")
+
+  // Étape 4 — Participation
+  source             String
+  arrivalCity        String    @map("arrival_city")
+  transportMethod    String    @map("transport_method")
+  fullRetreat        String    @map("full_retreat")
+  arrivalDate        DateTime? @map("arrival_date")
+  departureDate      DateTime? @map("departure_date")
+  organizationMember Boolean   @default(false) @map("organization_member")
+  department         String?
+
+  // Étape 5 — Hébergement
+  accommodationRequired Boolean  @default(false) @map("accommodation_required")
+  nights                Int?
+  accommodationType     String?  @map("accommodation_type")
+  comingWithOthers      Boolean  @default(false) @map("coming_with_others")
+  companionsCount       Int?               @map("companions_count")
+
+  // Étape 6 — Complémentaire
+  specialNeeds String? @map("special_needs")
+  comments     String?
+  observations String?
+
+  // Consentement
+  consent   Boolean @default(false)
+  confirmed Boolean @default(false)
+
+  // Statut
+  status String @default("REGISTERED")
+
+  // QR / e-mail
+  qrToken     String @unique @map("qr_token")
+  emailStatus String @default("EMAIL_PENDING") @map("email_status")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  attendance Attendance?
+
+  @@index([registrationNumber])
+  @@index([email])
+  @@index([phone])
+  @@index([city])
+  @@index([gender])
+  @@index([createdAt])
+  @@index([qrToken])
+  @@map("registrations")
+}
+
+// --------------------------------------------
+// Présence
+// --------------------------------------------
+
+model Attendance {
+  id             String       @id @default(uuid())
+  registrationId String       @unique @map("registration_id")
+  registration   Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  scannedAt      DateTime     @default(now()) @map("scanned_at")
+  scannedById    String?      @map("scanned_by")
+  scannedBy      Admin?       @relation("ScannedBy", fields: [scannedById], references: [id])
+  status         String       @default("PRESENT")
+
+  @@index([scannedAt])
+  @@map("attendance")
+}
+
+// --------------------------------------------
+// Paramètres de la retraite (modifiables sans toucher au code)
+// --------------------------------------------
+model RetreatSettings {
+  id          String   @id @default("default")
+  name        String   @default("HAPHAK 2026")
+  meaning     String   @default("Transforme")
+  theme       String   @default("Marche devant ma face")
+  datesLabel  String   @default("Du 27 au 30 septembre 2026") @map("dates_label")
+  startTime   String   @default("Dimanche 27 septembre à 17h00") @map("start_time")
+  location    String   @default("Q. Kyeshero, Av. Topographe N°1, réf. Entrée Tshengerero")
+  description String?
+  contactPhone String?  @default("+243 816 366 894") @map("contact_phone")
+  contactEmail String?  @map("contact_email")
+  whatsapp     String?
+  registrationOpensAt  DateTime? @map("registration_opens_at")
+  registrationClosesAt DateTime? @map("registration_closes_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("retreat_settings")
+}
+
+// --------------------------------------------
+// Sessions du programme (Soirée d'ouverture, Matin, Après-midi ...)
+// --------------------------------------------
+model RetreatSession {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  date        DateTime?
+  time        String?
+  active      Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("retreat_sessions")
+}
