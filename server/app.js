@@ -6,6 +6,7 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 
 const env = require('./config/env');
+const pool = require('./db');
 const { publicApiLimiter } = require('./middleware/rateLimiter');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 const { requireAuth } = require('./middleware/auth');
@@ -112,6 +113,24 @@ app.use('/api/admin', adminRoutes);
 
 // Santé de l'application
 app.get('/api/health', (req, res) => res.json({ success: true, status: 'ok' }));
+
+app.get('/db-test', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW() as now');
+
+    res.json({
+      connected: true,
+      time: result.rows[0].now,
+    });
+  } catch (error) {
+    console.error('Erreur de connexion Neon:', error.message);
+
+    res.status(500).json({
+      connected: false,
+      error: error.message,
+    });
+  }
+});
 
 // --- Erreurs ---
 app.use(notFoundHandler);
